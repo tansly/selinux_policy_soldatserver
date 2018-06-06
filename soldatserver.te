@@ -43,7 +43,10 @@ allow soldatserver_t soldatserver_port_t:udp_socket name_bind;
 allow soldatserver_t soldatserver_lobbyport_t:tcp_socket name_connect;
 corenet_tcp_bind_generic_node(soldatserver_t)
 corenet_udp_bind_generic_node(soldatserver_t)
+
+# Add port records
 # semanage port -a -t soldatserver_lobbyport_t -p tcp 13073
+# Change the port numbers to your needs or add more if you run more servers
 # semanage port -a -t soldatserver_port_t -p tcp 23073
 # semanage port -a -t soldatserver_port_t -p udp 23073
 # semanage port -a -t soldatserver_port_t -p tcp 23083
