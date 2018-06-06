@@ -21,9 +21,9 @@ guess the purpose of most lines by using *common sense*.
 The module assumes that the server will be placed under `/opt/`.
 Under `/opt/`, you can place as many server instances as you like, with the
 pattern `/opt/soldatserver_.+`. For example, I run three servers as:
-* `/opt/soldatserver\_CTF/`
-* `/opt/soldatserver\_DM/`
-* `/opt/soldatserver\_RCTF/`
+* `/opt/soldatserver_CTF/`
+* `/opt/soldatserver_DM/`
+* `/opt/soldatserver_RCTF/`
 
 ### Notes
 
