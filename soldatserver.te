@@ -1,0 +1,52 @@
+policy_module(soldatserver, 1.0)
+
+type soldatserver_t;
+type soldatserver_exec_t;
+init_daemon_domain(soldatserver_t, soldatserver_exec_t)
+
+type soldatserver_data_t;
+files_type(soldatserver_data_t)
+
+type soldatserver_log_t;
+logging_log_file(soldatserver_log_t)
+
+type soldatserver_port_t;
+type soldatserver_lobbyport_t;
+corenet_port(soldatserver_port_t)
+corenet_port(soldatserver_lobbyport_t)
+
+type soldatserver_data_rw_t;
+files_type(soldatserver_data_rw_t)
+
+allow soldatserver_t self:process setsched;
+
+allow soldatserver_t soldatserver_data_t:dir list_dir_perms;
+allow soldatserver_t soldatserver_data_t:file read_file_perms;
+
+allow soldatserver_t soldatserver_data_rw_t:dir rw_dir_perms;
+allow soldatserver_t soldatserver_data_rw_t:file manage_file_perms;
+
+allow soldatserver_t soldatserver_log_t:dir rw_dir_perms;
+allow soldatserver_t soldatserver_log_t:file manage_file_perms;
+
+# This is to let systemd read the server's pidfile.
+# There must be a better way
+allow init_t soldatserver_data_t:dir list_dir_perms;
+allow init_t soldatserver_log_t:dir list_dir_perms;
+allow init_t soldatserver_log_t:file read_file_perms;
+
+allow soldatserver_t self:tcp_socket create_stream_socket_perms;
+allow soldatserver_t self:tcp_socket listen;
+allow soldatserver_t soldatserver_port_t:tcp_socket name_bind;
+allow soldatserver_t self:udp_socket create_stream_socket_perms;
+allow soldatserver_t soldatserver_port_t:udp_socket name_bind;
+allow soldatserver_t soldatserver_lobbyport_t:tcp_socket name_connect;
+corenet_tcp_bind_generic_node(soldatserver_t)
+corenet_udp_bind_generic_node(soldatserver_t)
+# semanage port -a -t soldatserver_lobbyport_t -p tcp 13073
+# semanage port -a -t soldatserver_port_t -p tcp 23073
+# semanage port -a -t soldatserver_port_t -p udp 23073
+# semanage port -a -t soldatserver_port_t -p tcp 23083
+
+
+sysnet_dns_name_resolve(soldatserver_t)
