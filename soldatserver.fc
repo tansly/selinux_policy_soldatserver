@@ -7,3 +7,4 @@
 /opt/soldatserver_.+/serverscript   	    --         gen_context(system_u:object_r:soldatserver_exec_t)
 /opt/soldatserver_.+/logs(/.*)?                        gen_context(system_u:object_r:soldatserver_log_t)
 /opt/soldatserver_.+/logs/kills(/.*)?                  gen_context(system_u:object_r:soldatserver_log_t)
+/opt/soldatserver_.+/scripts/admin_notifier/notify     gen_context(system_u:object_r:soldatserver_notifier_exec_t)

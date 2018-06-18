@@ -1,5 +1,11 @@
 policy_module(soldatserver, 1.0)
 
+require {
+    type shell_exec_t;
+    type telegrambot_port_t;
+    role system_r;
+}
+
 type soldatserver_t;
 type soldatserver_exec_t;
 init_daemon_domain(soldatserver_t, soldatserver_exec_t)
@@ -29,7 +35,6 @@ allow soldatserver_t soldatserver_data_rw_t:file manage_file_perms;
 allow soldatserver_t soldatserver_log_t:dir rw_dir_perms;
 allow soldatserver_t soldatserver_log_t:file manage_file_perms;
 
-# This is to let systemd read the server's pidfile.
 # There must be a better way
 allow init_t soldatserver_data_t:dir list_dir_perms;
 allow init_t soldatserver_log_t:dir list_dir_perms;
@@ -43,13 +48,44 @@ allow soldatserver_t soldatserver_port_t:udp_socket name_bind;
 allow soldatserver_t soldatserver_lobbyport_t:tcp_socket name_connect;
 corenet_tcp_bind_generic_node(soldatserver_t)
 corenet_udp_bind_generic_node(soldatserver_t)
-
-# Add port records
 # semanage port -a -t soldatserver_lobbyport_t -p tcp 13073
-# Change the port numbers to your needs or add more if you run more servers
 # semanage port -a -t soldatserver_port_t -p tcp 23073
 # semanage port -a -t soldatserver_port_t -p udp 23073
 # semanage port -a -t soldatserver_port_t -p tcp 23083
 
-
 sysnet_dns_name_resolve(soldatserver_t)
+
+# For admin notifier script
+type soldatserver_shell_t;
+domain_type(soldatserver_shell_t)
+
+# XXX: Is this the right way? I sense something... elusive.
+role system_r types soldatserver_shell_t;
+
+# Execute a shell in a seperately confined domain
+type_transition soldatserver_t shell_exec_t:process soldatserver_shell_t;
+allow soldatserver_t shell_exec_t:file execute;
+allow soldatserver_shell_t shell_exec_t:file entrypoint;
+allow soldatserver_t soldatserver_shell_t:process transition;
+
+allow soldatserver_shell_t shell_exec_t:file exec_file_perms;
+
+allow soldatserver_shell_t soldatserver_data_t:dir search_dir_perms;
+
+# A seperate domain for the notifier
+type soldatserver_notifier_t;
+type soldatserver_notifier_exec_t;
+domain_type(soldatserver_notifier_t)
+domain_entry_file(soldatserver_notifier_t, soldatserver_notifier_exec_t)
+
+role system_r types soldatserver_notifier_t;
+
+# Shell domain will execute the notify binary in a seperate domain
+type_transition soldatserver_shell_t soldatserver_notifier_exec_t:process soldatserver_notifier_t;
+# XXX: Why plain execute does not work here but works above with soldatserver_t to shell_exec_t?
+allow soldatserver_shell_t soldatserver_notifier_exec_t:file exec_file_perms;
+allow soldatserver_shell_t soldatserver_notifier_t:process transition;
+
+sysnet_dns_name_resolve(soldatserver_notifier_t)
+
+allow soldatserver_notifier_t telegrambot_port_t:tcp_socket name_connect;

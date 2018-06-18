@@ -39,3 +39,7 @@ pattern `/opt/soldatserver_.+`. For example, I run three servers as:
     come up with with two days of work. But note that my knowledge of SELinux is
     pretty limited.
 
+### TODO
+
+* Document the rules for Telegram admin notifier, once I complete my Telegram
+    bot and open source it.
